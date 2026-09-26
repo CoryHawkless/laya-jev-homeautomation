@@ -1,0 +1,59 @@
+services:
+  # Default: CPU. Warms up in a few seconds, ~200-500 ms per classify call.
+  router:
+    build: ./router
+    image: home-router:cpu
+    container_name: home-router
+    profiles: [cpu, default]
+    ports:
+      - "8010:8010"
+    environment:
+      LAYA_MODEL: convaiinnovations/laya
+      LAYA_DEVICE: cpu
+      LAYA_PRELOAD: "1"
+      CONFIDENCE_THRESHOLD: "0.75"
+      HOME_API_BASE: http://mock-home.local/api  # dispatch calls no-op unless you point it at something real
+    volumes:
+      - hf-cache:/root/.cache/huggingface
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8010/health | grep -q '\"ready\": *true'"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+      start_period: 60s
+    restart: unless-stopped
+
+  # GPU mode. Requires the NVIDIA Container Toolkit.
+  #   docker compose --profile gpu up router-gpu
+  router-gpu:
+    build: ./router
+    image: home-router:cpu   # same image, just a different runtime + env
+    container_name: home-router-gpu
+    profiles: [gpu]
+    ports:
+      - "8010:8010"
+    environment:
+      LAYA_MODEL: convaiinnovations/laya
+      LAYA_DEVICE: cuda
+      LAYA_PRELOAD: "1"
+      CONFIDENCE_THRESHOLD: "0.75"
+      HOME_API_BASE: http://mock-home.local/api
+    volumes:
+      - hf-cache:/root/.cache/huggingface
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8010/health | grep -q '\"ready\": *true'"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+      start_period: 60s
+    restart: unless-stopped
+
+volumes:
+  hf-cache: {}

@@ -1,0 +1,200 @@
+{"id": "001", "utterance": "turn on the kitchen lights", "expected": {"intent": "light_on", "room": "kitchen", "direction": "none"}}
+{"id": "002", "utterance": "lights on", "expected": {"intent": "light_on", "room": "whole_home", "direction": "none"}}
+{"id": "003", "utterance": "switch on the bedroom light please", "expected": {"intent": "light_on", "room": "bedroom", "direction": "none"}}
+{"id": "004", "utterance": "can you turn the living room lights on", "expected": {"intent": "light_on", "room": "living_room", "direction": "none"}}
+{"id": "005", "utterance": "office lights on", "expected": {"intent": "light_on", "room": "office", "direction": "none"}}
+{"id": "006", "utterance": "turn the outside lights on", "expected": {"intent": "light_on", "room": "outside", "direction": "none"}}
+{"id": "007", "utterance": "it's dark in here, lights on", "expected": {"intent": "light_on", "room": "whole_home", "direction": "none"}}
+{"id": "008", "utterance": "turn all the lights on", "expected": {"intent": "light_on", "room": "whole_home", "direction": "none"}}
+{"id": "009", "utterance": "lights on in the kitchen", "expected": {"intent": "light_on", "room": "kitchen", "direction": "none"}}
+{"id": "010", "utterance": "flick on the bedroom lights", "expected": {"intent": "light_on", "room": "bedroom", "direction": "none"}}
+{"id": "011", "utterance": "give me light in the office", "expected": {"intent": "light_on", "room": "office", "direction": "none"}}
+{"id": "012", "utterance": "power on the garden lights", "expected": {"intent": "light_on", "room": "outside", "direction": "none"}}
+{"id": "013", "utterance": "kitchen lights on please", "expected": {"intent": "light_on", "room": "kitchen", "direction": "none"}}
+{"id": "014", "utterance": "let there be light", "expected": {"intent": "light_on", "room": "whole_home", "direction": "none"}}
+{"id": "015", "utterance": "give me some light in the bedroom", "expected": {"intent": "light_on", "room": "bedroom", "direction": "none"}}
+{"id": "016", "utterance": "turn on the lights in my office", "expected": {"intent": "light_on", "room": "office", "direction": "none"}}
+{"id": "017", "utterance": "activate lights outside", "expected": {"intent": "light_on", "room": "outside", "direction": "none"}}
+{"id": "018", "utterance": "put the lights on in the lounge", "expected": {"intent": "light_on", "room": "living_room", "direction": "none"}}
+{"id": "019", "utterance": "I can't see anything, turn the lights on", "expected": {"intent": "light_on", "room": "whole_home", "direction": "none"}}
+{"id": "020", "utterance": "start up the kitchen lights", "expected": {"intent": "light_on", "room": "kitchen", "direction": "none"}}
+{"id": "021", "utterance": "turn on lights in the master bedroom", "expected": {"intent": "light_on", "room": "bedroom", "direction": "none"}}
+{"id": "022", "utterance": "get the office lights going", "expected": {"intent": "light_on", "room": "office", "direction": "none"}}
+{"id": "023", "utterance": "yard lights on", "expected": {"intent": "light_on", "room": "outside", "direction": "none"}}
+{"id": "024", "utterance": "living room lamp on", "expected": {"intent": "light_on", "room": "living_room", "direction": "none"}}
+{"id": "025", "utterance": "switch the kitchen light on", "expected": {"intent": "light_on", "room": "kitchen", "direction": "none"}}
+{"id": "026", "utterance": "turn off the kitchen lights", "expected": {"intent": "light_off", "room": "kitchen", "direction": "none"}}
+{"id": "027", "utterance": "lights off", "expected": {"intent": "light_off", "room": "whole_home", "direction": "none"}}
+{"id": "028", "utterance": "kill the bedroom lights", "expected": {"intent": "light_off", "room": "bedroom", "direction": "none"}}
+{"id": "029", "utterance": "switch off all the lights", "expected": {"intent": "light_off", "room": "whole_home", "direction": "none"}}
+{"id": "030", "utterance": "office lights off", "expected": {"intent": "light_off", "room": "office", "direction": "none"}}
+{"id": "031", "utterance": "turn the outside lights off", "expected": {"intent": "light_off", "room": "outside", "direction": "none"}}
+{"id": "032", "utterance": "hit the lights", "expected": {"intent": "light_off", "room": "whole_home", "direction": "none"}}
+{"id": "033", "utterance": "shut off the living room lights", "expected": {"intent": "light_off", "room": "living_room", "direction": "none"}}
+{"id": "034", "utterance": "lights out in the kitchen", "expected": {"intent": "light_off", "room": "kitchen", "direction": "none"}}
+{"id": "035", "utterance": "kill all lights", "expected": {"intent": "light_off", "room": "whole_home", "direction": "none"}}
+{"id": "036", "utterance": "power down the garden lights", "expected": {"intent": "light_off", "room": "outside", "direction": "none"}}
+{"id": "037", "utterance": "kitchen lights off please", "expected": {"intent": "light_off", "room": "kitchen", "direction": "none"}}
+{"id": "038", "utterance": "we're going to bed, lights off", "expected": {"intent": "light_off", "room": "whole_home", "direction": "none"}}
+{"id": "039", "utterance": "turn off the office lights", "expected": {"intent": "light_off", "room": "office", "direction": "none"}}
+{"id": "040", "utterance": "extinguish the bedroom lights", "expected": {"intent": "light_off", "room": "bedroom", "direction": "none"}}
+{"id": "041", "utterance": "kill the lights outside", "expected": {"intent": "light_off", "room": "outside", "direction": "none"}}
+{"id": "042", "utterance": "put the lights out in the lounge", "expected": {"intent": "light_off", "room": "living_room", "direction": "none"}}
+{"id": "043", "utterance": "everything off, lights included", "expected": {"intent": "light_off", "room": "whole_home", "direction": "none"}}
+{"id": "044", "utterance": "shut down the kitchen lights", "expected": {"intent": "light_off", "room": "kitchen", "direction": "none"}}
+{"id": "045", "utterance": "bedroom lights off", "expected": {"intent": "light_off", "room": "bedroom", "direction": "none"}}
+{"id": "046", "utterance": "office lights out", "expected": {"intent": "light_off", "room": "office", "direction": "none"}}
+{"id": "047", "utterance": "turn off yard lights", "expected": {"intent": "light_off", "room": "outside", "direction": "none"}}
+{"id": "048", "utterance": "living room lamp off", "expected": {"intent": "light_off", "room": "living_room", "direction": "none"}}
+{"id": "049", "utterance": "switch the kitchen light off", "expected": {"intent": "light_off", "room": "kitchen", "direction": "none"}}
+{"id": "050", "utterance": "turn off all the lights please", "expected": {"intent": "light_off", "room": "whole_home", "direction": "none"}}
+{"id": "051", "utterance": "dim the bedroom lights", "expected": {"intent": "light_dim", "room": "bedroom", "direction": "down"}}
+{"id": "052", "utterance": "make the kitchen lights brighter", "expected": {"intent": "light_dim", "room": "kitchen", "direction": "up"}}
+{"id": "053", "utterance": "lower the living room lights", "expected": {"intent": "light_dim", "room": "living_room", "direction": "down"}}
+{"id": "054", "utterance": "brighten the office", "expected": {"intent": "light_dim", "room": "office", "direction": "up"}}
+{"id": "055", "utterance": "dim the lights a bit", "expected": {"intent": "light_dim", "room": "whole_home", "direction": "down"}}
+{"id": "056", "utterance": "brighter please, in the bedroom", "expected": {"intent": "light_dim", "room": "bedroom", "direction": "up"}}
+{"id": "057", "utterance": "turn the lights down in the kitchen", "expected": {"intent": "light_dim", "room": "kitchen", "direction": "down"}}
+{"id": "058", "utterance": "turn the office lights up", "expected": {"intent": "light_dim", "room": "office", "direction": "up"}}
+{"id": "059", "utterance": "make it darker in the bedroom", "expected": {"intent": "light_dim", "room": "bedroom", "direction": "down"}}
+{"id": "060", "utterance": "make it brighter in the lounge", "expected": {"intent": "light_dim", "room": "living_room", "direction": "up"}}
+{"id": "061", "utterance": "reduce the light in the kitchen", "expected": {"intent": "light_dim", "room": "kitchen", "direction": "down"}}
+{"id": "062", "utterance": "increase the brightness in the office", "expected": {"intent": "light_dim", "room": "office", "direction": "up"}}
+{"id": "063", "utterance": "soften the bedroom lights", "expected": {"intent": "light_dim", "room": "bedroom", "direction": "down"}}
+{"id": "064", "utterance": "crank up the outside lights", "expected": {"intent": "light_dim", "room": "outside", "direction": "up"}}
+{"id": "065", "utterance": "dim the outside lights", "expected": {"intent": "light_dim", "room": "outside", "direction": "down"}}
+{"id": "066", "utterance": "brighten up the whole house", "expected": {"intent": "light_dim", "room": "whole_home", "direction": "up"}}
+{"id": "067", "utterance": "dim everything", "expected": {"intent": "light_dim", "room": "whole_home", "direction": "down"}}
+{"id": "068", "utterance": "living room lights lower", "expected": {"intent": "light_dim", "room": "living_room", "direction": "down"}}
+{"id": "069", "utterance": "office lights higher", "expected": {"intent": "light_dim", "room": "office", "direction": "up"}}
+{"id": "070", "utterance": "kitchen lights, brighter", "expected": {"intent": "light_dim", "room": "kitchen", "direction": "up"}}
+{"id": "071", "utterance": "reduce brightness in the bedroom", "expected": {"intent": "light_dim", "room": "bedroom", "direction": "down"}}
+{"id": "072", "utterance": "give me more light in the kitchen", "expected": {"intent": "light_dim", "room": "kitchen", "direction": "up"}}
+{"id": "073", "utterance": "less light in the lounge", "expected": {"intent": "light_dim", "room": "living_room", "direction": "down"}}
+{"id": "074", "utterance": "back off the outside lights a touch", "expected": {"intent": "light_dim", "room": "outside", "direction": "down"}}
+{"id": "075", "utterance": "amp up the bedroom lights", "expected": {"intent": "light_dim", "room": "bedroom", "direction": "up"}}
+{"id": "076", "utterance": "play some music", "expected": {"intent": "music_play", "room": "whole_home", "direction": "none"}}
+{"id": "077", "utterance": "start the music", "expected": {"intent": "music_play", "room": "whole_home", "direction": "none"}}
+{"id": "078", "utterance": "play music in the kitchen", "expected": {"intent": "music_play", "room": "kitchen", "direction": "none"}}
+{"id": "079", "utterance": "resume playback", "expected": {"intent": "music_play", "room": "whole_home", "direction": "none"}}
+{"id": "080", "utterance": "unpause the music", "expected": {"intent": "music_play", "room": "whole_home", "direction": "none"}}
+{"id": "081", "utterance": "put on some tunes", "expected": {"intent": "music_play", "room": "whole_home", "direction": "none"}}
+{"id": "082", "utterance": "start music in the living room", "expected": {"intent": "music_play", "room": "living_room", "direction": "none"}}
+{"id": "083", "utterance": "play music in the office", "expected": {"intent": "music_play", "room": "office", "direction": "none"}}
+{"id": "084", "utterance": "hit play", "expected": {"intent": "music_play", "room": "whole_home", "direction": "none"}}
+{"id": "085", "utterance": "resume music in the bedroom", "expected": {"intent": "music_play", "room": "bedroom", "direction": "none"}}
+{"id": "086", "utterance": "keep the music going", "expected": {"intent": "music_play", "room": "whole_home", "direction": "none"}}
+{"id": "087", "utterance": "start playing music outside", "expected": {"intent": "music_play", "room": "outside", "direction": "none"}}
+{"id": "088", "utterance": "put music on in the kitchen", "expected": {"intent": "music_play", "room": "kitchen", "direction": "none"}}
+{"id": "089", "utterance": "play music in the master bedroom", "expected": {"intent": "music_play", "room": "bedroom", "direction": "none"}}
+{"id": "090", "utterance": "get some music going in the office", "expected": {"intent": "music_play", "room": "office", "direction": "none"}}
+{"id": "091", "utterance": "restart the music", "expected": {"intent": "music_play", "room": "whole_home", "direction": "none"}}
+{"id": "092", "utterance": "play tunes in the living room", "expected": {"intent": "music_play", "room": "living_room", "direction": "none"}}
+{"id": "093", "utterance": "get the music going out in the garden", "expected": {"intent": "music_play", "room": "outside", "direction": "none"}}
+{"id": "094", "utterance": "kitchen music please", "expected": {"intent": "music_play", "room": "kitchen", "direction": "none"}}
+{"id": "095", "utterance": "put a track on", "expected": {"intent": "music_play", "room": "whole_home", "direction": "none"}}
+{"id": "096", "utterance": "pause the music", "expected": {"intent": "music_pause", "room": "whole_home", "direction": "none"}}
+{"id": "097", "utterance": "stop the music", "expected": {"intent": "music_pause", "room": "whole_home", "direction": "none"}}
+{"id": "098", "utterance": "pause music in the kitchen", "expected": {"intent": "music_pause", "room": "kitchen", "direction": "none"}}
+{"id": "099", "utterance": "shut off the music", "expected": {"intent": "music_pause", "room": "whole_home", "direction": "none"}}
+{"id": "100", "utterance": "silence the music", "expected": {"intent": "music_pause", "room": "whole_home", "direction": "none"}}
+{"id": "101", "utterance": "stop playing music", "expected": {"intent": "music_pause", "room": "whole_home", "direction": "none"}}
+{"id": "102", "utterance": "hit pause", "expected": {"intent": "music_pause", "room": "whole_home", "direction": "none"}}
+{"id": "103", "utterance": "pause it", "expected": {"intent": "music_pause", "room": "whole_home", "direction": "none"}}
+{"id": "104", "utterance": "pause music in the bedroom", "expected": {"intent": "music_pause", "room": "bedroom", "direction": "none"}}
+{"id": "105", "utterance": "stop the music in the living room", "expected": {"intent": "music_pause", "room": "living_room", "direction": "none"}}
+{"id": "106", "utterance": "kill the music", "expected": {"intent": "music_pause", "room": "whole_home", "direction": "none"}}
+{"id": "107", "utterance": "pause the tunes in the office", "expected": {"intent": "music_pause", "room": "office", "direction": "none"}}
+{"id": "108", "utterance": "stop outside music", "expected": {"intent": "music_pause", "room": "outside", "direction": "none"}}
+{"id": "109", "utterance": "cut the music", "expected": {"intent": "music_pause", "room": "whole_home", "direction": "none"}}
+{"id": "110", "utterance": "pause playback in the kitchen", "expected": {"intent": "music_pause", "room": "kitchen", "direction": "none"}}
+{"id": "111", "utterance": "stop the music please", "expected": {"intent": "music_pause", "room": "whole_home", "direction": "none"}}
+{"id": "112", "utterance": "no more music", "expected": {"intent": "music_pause", "room": "whole_home", "direction": "none"}}
+{"id": "113", "utterance": "hush the music", "expected": {"intent": "music_pause", "room": "whole_home", "direction": "none"}}
+{"id": "114", "utterance": "end music in the master bedroom", "expected": {"intent": "music_pause", "room": "bedroom", "direction": "none"}}
+{"id": "115", "utterance": "kill kitchen music", "expected": {"intent": "music_pause", "room": "kitchen", "direction": "none"}}
+{"id": "116", "utterance": "turn the music up", "expected": {"intent": "music_vol", "room": "whole_home", "direction": "up"}}
+{"id": "117", "utterance": "turn the music down", "expected": {"intent": "music_vol", "room": "whole_home", "direction": "down"}}
+{"id": "118", "utterance": "louder music in the kitchen", "expected": {"intent": "music_vol", "room": "kitchen", "direction": "up"}}
+{"id": "119", "utterance": "quieter music please", "expected": {"intent": "music_vol", "room": "whole_home", "direction": "down"}}
+{"id": "120", "utterance": "music louder in the living room", "expected": {"intent": "music_vol", "room": "living_room", "direction": "up"}}
+{"id": "121", "utterance": "volume up", "expected": {"intent": "music_vol", "room": "whole_home", "direction": "up"}}
+{"id": "122", "utterance": "volume down", "expected": {"intent": "music_vol", "room": "whole_home", "direction": "down"}}
+{"id": "123", "utterance": "turn down the kitchen music", "expected": {"intent": "music_vol", "room": "kitchen", "direction": "down"}}
+{"id": "124", "utterance": "crank the music", "expected": {"intent": "music_vol", "room": "whole_home", "direction": "up"}}
+{"id": "125", "utterance": "pump up the volume", "expected": {"intent": "music_vol", "room": "whole_home", "direction": "up"}}
+{"id": "126", "utterance": "lower the music in the bedroom", "expected": {"intent": "music_vol", "room": "bedroom", "direction": "down"}}
+{"id": "127", "utterance": "make the music louder", "expected": {"intent": "music_vol", "room": "whole_home", "direction": "up"}}
+{"id": "128", "utterance": "softer music please", "expected": {"intent": "music_vol", "room": "whole_home", "direction": "down"}}
+{"id": "129", "utterance": "raise the volume in the office", "expected": {"intent": "music_vol", "room": "office", "direction": "up"}}
+{"id": "130", "utterance": "drop the volume outside", "expected": {"intent": "music_vol", "room": "outside", "direction": "down"}}
+{"id": "131", "utterance": "bump the music up", "expected": {"intent": "music_vol", "room": "whole_home", "direction": "up"}}
+{"id": "132", "utterance": "turn music down a bit", "expected": {"intent": "music_vol", "room": "whole_home", "direction": "down"}}
+{"id": "133", "utterance": "make the kitchen music louder", "expected": {"intent": "music_vol", "room": "kitchen", "direction": "up"}}
+{"id": "134", "utterance": "quieter music in the bedroom", "expected": {"intent": "music_vol", "room": "bedroom", "direction": "down"}}
+{"id": "135", "utterance": "increase the volume", "expected": {"intent": "music_vol", "room": "whole_home", "direction": "up"}}
+{"id": "136", "utterance": "decrease the volume", "expected": {"intent": "music_vol", "room": "whole_home", "direction": "down"}}
+{"id": "137", "utterance": "louder music in the office", "expected": {"intent": "music_vol", "room": "office", "direction": "up"}}
+{"id": "138", "utterance": "music quieter outside", "expected": {"intent": "music_vol", "room": "outside", "direction": "down"}}
+{"id": "139", "utterance": "bring the music up", "expected": {"intent": "music_vol", "room": "whole_home", "direction": "up"}}
+{"id": "140", "utterance": "back off the music volume in the lounge", "expected": {"intent": "music_vol", "room": "living_room", "direction": "down"}}
+{"id": "141", "utterance": "make it warmer", "expected": {"intent": "climate_set", "room": "whole_home", "direction": "up"}}
+{"id": "142", "utterance": "make it cooler", "expected": {"intent": "climate_set", "room": "whole_home", "direction": "down"}}
+{"id": "143", "utterance": "turn up the heat", "expected": {"intent": "climate_set", "room": "whole_home", "direction": "up"}}
+{"id": "144", "utterance": "turn down the heat", "expected": {"intent": "climate_set", "room": "whole_home", "direction": "down"}}
+{"id": "145", "utterance": "warmer in the bedroom", "expected": {"intent": "climate_set", "room": "bedroom", "direction": "up"}}
+{"id": "146", "utterance": "cooler in the living room", "expected": {"intent": "climate_set", "room": "living_room", "direction": "down"}}
+{"id": "147", "utterance": "increase the temperature", "expected": {"intent": "climate_set", "room": "whole_home", "direction": "up"}}
+{"id": "148", "utterance": "lower the temperature", "expected": {"intent": "climate_set", "room": "whole_home", "direction": "down"}}
+{"id": "149", "utterance": "crank the heater up", "expected": {"intent": "climate_set", "room": "whole_home", "direction": "up"}}
+{"id": "150", "utterance": "it's too cold in the office", "expected": {"intent": "climate_set", "room": "office", "direction": "up"}}
+{"id": "151", "utterance": "it's too hot in the bedroom", "expected": {"intent": "climate_set", "room": "bedroom", "direction": "down"}}
+{"id": "152", "utterance": "warm the kitchen up", "expected": {"intent": "climate_set", "room": "kitchen", "direction": "up"}}
+{"id": "153", "utterance": "cool the bedroom down", "expected": {"intent": "climate_set", "room": "bedroom", "direction": "down"}}
+{"id": "154", "utterance": "bump the thermostat up", "expected": {"intent": "climate_set", "room": "whole_home", "direction": "up"}}
+{"id": "155", "utterance": "drop the thermostat", "expected": {"intent": "climate_set", "room": "whole_home", "direction": "down"}}
+{"id": "156", "utterance": "raise the temp in the office", "expected": {"intent": "climate_set", "room": "office", "direction": "up"}}
+{"id": "157", "utterance": "lower the temp in the kitchen", "expected": {"intent": "climate_set", "room": "kitchen", "direction": "down"}}
+{"id": "158", "utterance": "heat up the living room", "expected": {"intent": "climate_set", "room": "living_room", "direction": "up"}}
+{"id": "159", "utterance": "cool the whole house down", "expected": {"intent": "climate_set", "room": "whole_home", "direction": "down"}}
+{"id": "160", "utterance": "make it a bit warmer in the master bedroom", "expected": {"intent": "climate_set", "room": "bedroom", "direction": "up"}}
+{"id": "161", "utterance": "office needs to be warmer", "expected": {"intent": "climate_set", "room": "office", "direction": "up"}}
+{"id": "162", "utterance": "kitchen is too warm, cool it down", "expected": {"intent": "climate_set", "room": "kitchen", "direction": "down"}}
+{"id": "163", "utterance": "turn up the heat in the lounge", "expected": {"intent": "climate_set", "room": "living_room", "direction": "up"}}
+{"id": "164", "utterance": "crank the AC", "expected": {"intent": "climate_set", "room": "whole_home", "direction": "down"}}
+{"id": "165", "utterance": "less heat in the bedroom", "expected": {"intent": "climate_set", "room": "bedroom", "direction": "down"}}
+{"id": "166", "utterance": "activate movie mode", "expected": {"intent": "scene", "room": "whole_home", "direction": "none"}}
+{"id": "167", "utterance": "movie time in the lounge", "expected": {"intent": "scene", "room": "living_room", "direction": "none"}}
+{"id": "168", "utterance": "activate bedtime scene", "expected": {"intent": "scene", "room": "whole_home", "direction": "none"}}
+{"id": "169", "utterance": "goodnight", "expected": {"intent": "scene", "room": "whole_home", "direction": "none"}}
+{"id": "170", "utterance": "dinner mode in the kitchen", "expected": {"intent": "scene", "room": "kitchen", "direction": "none"}}
+{"id": "171", "utterance": "romantic mode in the bedroom", "expected": {"intent": "scene", "room": "bedroom", "direction": "none"}}
+{"id": "172", "utterance": "party mode in the living room", "expected": {"intent": "scene", "room": "living_room", "direction": "none"}}
+{"id": "173", "utterance": "reading scene in the office", "expected": {"intent": "scene", "room": "office", "direction": "none"}}
+{"id": "174", "utterance": "activate morning scene", "expected": {"intent": "scene", "room": "whole_home", "direction": "none"}}
+{"id": "175", "utterance": "wake up scene", "expected": {"intent": "scene", "room": "whole_home", "direction": "none"}}
+{"id": "176", "utterance": "cinema mode in the lounge", "expected": {"intent": "scene", "room": "living_room", "direction": "none"}}
+{"id": "177", "utterance": "focus mode in the office", "expected": {"intent": "scene", "room": "office", "direction": "none"}}
+{"id": "178", "utterance": "chill scene in the lounge", "expected": {"intent": "scene", "room": "living_room", "direction": "none"}}
+{"id": "179", "utterance": "activate away mode", "expected": {"intent": "scene", "room": "whole_home", "direction": "none"}}
+{"id": "180", "utterance": "welcome home scene", "expected": {"intent": "scene", "room": "whole_home", "direction": "none"}}
+{"id": "181", "utterance": "what's the weather like", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "182", "utterance": "how are you today", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "183", "utterance": "tell me a joke", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "184", "utterance": "what time is it", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "185", "utterance": "set a timer for twenty minutes", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "186", "utterance": "remind me to feed the dog", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "187", "utterance": "what's on my calendar", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "188", "utterance": "call my mum", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "189", "utterance": "add milk to the shopping list", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "190", "utterance": "play a game with me", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "191", "utterance": "hello", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "192", "utterance": "thanks", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "193", "utterance": "cancel", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "194", "utterance": "what can you do", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "195", "utterance": "who is the prime minister", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "196", "utterance": "read me the news", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "197", "utterance": "unlock the front door", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "198", "utterance": "arm the alarm", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "199", "utterance": "the kitchen light is broken", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}
+{"id": "200", "utterance": "asdf qwer poiu", "expected": {"intent": "unknown", "room": "whole_home", "direction": "none"}}

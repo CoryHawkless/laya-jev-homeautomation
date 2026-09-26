@@ -1,0 +1,8 @@
+# Benchmark results
+
+Results from `run_bench.py` land here. Each run creates:
+- `raw.jsonl` — per-case predictions
+- `summary.json` — aggregate metrics
+- `report.md` — human-readable report
+
+This directory is gitignored. Run the benchmark yourself to populate it.

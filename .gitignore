@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+
+# Benchmark results (regenerate fresh on each run)
+bench/results/raw.jsonl
+bench/results/summary.json
+bench/results/report.md
+bench/results/**/raw.jsonl
+bench/results/**/summary.json
+bench/results/**/report.md
+!bench/results/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Router — AI Demo</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0b0b12;
+  --surface: #12121d;
+  --surface2: #1a1a2e;
+  --border: #252040;
+  --text: #e0dce8;
+  --text2: #9a94b0;
+  --accent: #7c6af0;
+  --accent2: #5a4ad0;
+  --glow-light: #ffd866;
+  --glow-warm: #ff8c42;
+  --glow-cool: #42a5f5;
+  --glow-music: #ce93d8;
+  --glow-scene: #80cbc4;
+  --radius: 12px;
+}
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ─── TOP BAR ─── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 24px; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.topbar h1 { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+.topbar h1::before { content: '🏠'; }
+.status-badge {
+  font-size: 12px; padding: 4px 12px; border-radius: 20px;
+  background: var(--surface2); color: var(--text2);
+  display: flex; align-items: center; gap: 6px;
+}
+.status-badge.online { color: #69f0ae; background: rgba(105,240,174,0.1); }
+.status-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulse-dot 2s infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ─── INPUT AREA ─── */
+.input-area {
+  display: flex; gap: 8px; padding: 16px 24px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  align-items: center; flex-wrap: wrap;
+}
+.input-area input {
+  flex: 1; min-width: 200px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); padding: 10px 16px; border-radius: var(--radius);
+  font-size: 15px; outline: none; transition: border-color .2s;
+}
+.input-area input:focus { border-color: var(--accent); }
+.input-area button {
+  background: var(--accent); color: #fff; border: none;
+  padding: 10px 20px; border-radius: var(--radius); font-size: 14px;
+  font-weight: 600; cursor: pointer; transition: all .2s;
+}
+.input-area button:hover { background: var(--accent2); transform: translateY(-1px); }
+.input-area button:disabled { opacity: .5; cursor: not-allowed; }
+.quick-examples {
+  display: flex; gap: 6px; flex-wrap: wrap; padding: 0 24px 12px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+}
+.quick-examples button {
+  background: var(--surface2); color: var(--text2); border: 1px solid var(--border);
+  padding: 4px 12px; border-radius: 16px; font-size: 12px; cursor: pointer;
+  transition: all .2s;
+}
+.quick-examples button:hover { color: var(--text); border-color: var(--accent); }
+
+/* ─── MAIN LAYOUT ─── */
+.main-grid {
+  display: flex; gap: 0; flex: 1;
+  /* height is handled by flex */ 
+}
+
+.floorplan-section {
+  flex: 1; padding: 20px;
+  display: flex; flex-direction: column; gap: 12px;
+  overflow: hidden;
+}
+.floorplan-section .label {
+  font-size: 13px; color: var(--text2); font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+
+.response-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 18px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  min-height: 70px;
+}
+.response-card .field {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.response-card .field .tag {
+  font-size: 11px; color: var(--text2); letter-spacing: .5px;
+}
+.response-card .field .value {
+  font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 6px;
+}
+.response-card .field .bar {
+  height: 3px; background: var(--surface2); border-radius: 2px; margin-top: 4px;
+  overflow: hidden;
+}
+.response-card .field .bar .fill {
+  height: 100%; border-radius: 2px; transition: width .4s ease;
+}
+.conf-intent .value { color: var(--accent); }
+.conf-room .value { color: var(--glow-light); }
+.conf-dir .value { color: var(--glow-cool); }
+.conf-confirm .value { color: var(--glow-music); }
+.latency-detail { font-size: 12px; color: var(--text2); font-weight: 400; }
+
+/* ─── FLOOR PLAN ─── */
+.floorplan {
+  flex: 1; display: grid;
+  grid-template-columns: 1fr 1.6fr 1.2fr;
+  grid-template-rows: 1fr 0.7fr;
+  gap: 2px; background: var(--bg);
+  min-height: 260px;
+  position: relative;
+}
+
+.room {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 12px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; gap: 4px;
+  transition: all .4s ease;
+  position: relative;
+  overflow: hidden;
+}
+.room .rname { font-size: 13px; font-weight: 600; color: var(--text2); }
+.room .icons { font-size: 22px; display: flex; gap: 6px; margin-top: 2px; }
+.room .device-label { font-size: 10px; color: var(--text2); opacity: 0.6; }
+
+/* Glow overlays */
+.room .glow {
+  position: absolute; inset: 0; border-radius: 6px;
+  opacity: 0; transition: opacity .5s ease;
+  pointer-events: none;
+}
+.room .glow.light-glow {
+  background: radial-gradient(ellipse at center, rgba(255,216,102,0.15) 0%, transparent 70%);
+}
+.room .glow.music-glow {
+  background: radial-gradient(ellipse at center, rgba(206,147,216,0.12) 0%, transparent 70%);
+}
+.room .glow.climate-hot {
+  background: radial-gradient(ellipse at center, rgba(255,75,75,0.12) 0%, transparent 70%);
+}
+.room .glow.climate-cold {
+  background: radial-gradient(ellipse at center, rgba(66,165,245,0.12) 0%, transparent 70%);
+}
+.room .glow.scene-glow {
+  background: radial-gradient(ellipse at center, rgba(128,203,196,0.15) 0%, transparent 70%);
+}
+.room .glow.active { opacity: 1; }
+
+/* Light states — idle, on, off */
+.room .icons [data-light] { opacity: 0.7; transition: all .4s ease; }
+.room.lit .icons [data-light] { opacity: 1; color: var(--glow-light); filter: drop-shadow(0 0 8px var(--glow-light)); }
+.room.lit { border-color: rgba(255,216,102,0.3); }
+.room.off .icons [data-light] { opacity: 0.25; filter: grayscale(1) brightness(0.5); }
+.room.off { border-color: rgba(255,255,255,0.04); }
+.room.off::after {
+  content: 'OFF'; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 32px; font-weight: 800; color: rgba(255,255,255,0.04);
+  letter-spacing: 6px; pointer-events: none;
+}
+
+/* Music playing */
+.room.music-playing .icons [data-music] {
+  color: var(--glow-music);
+  animation: music-bounce .5s ease-in-out infinite alternate;
+}
+@keyframes music-bounce { 0%{transform:scale(1)} 100%{transform:scale(1.25)} }
+
+/* Climate */
+.room.climate-hot .icons [data-temp] { color: #ff6b6b; filter: drop-shadow(0 0 6px rgba(255,75,75,0.5)); }
+.room.climate-cold .icons [data-temp] { color: #42a5f5; filter: drop-shadow(0 0 6px rgba(66,165,245,0.5)); }
+
+/* Scene */
+.room.scene-active { border-color: var(--glow-scene); }
+.room.scene-active::after {
+  content: ''; position: absolute; inset: 0; border-radius: 6px;
+  background: rgba(128,203,196,0.06);
+  animation: scene-pulse 3s ease-in-out infinite;
+}
+@keyframes scene-pulse { 0%,100%{opacity:.3} 50%{opacity:1} }
+
+/* Whole home special styling */
+.room.whole-home-active .icons { color: var(--glow-light); }
+
+/* ─── SIDEBAR ─── */
+.history-panel {
+  width: 320px; background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.history-panel .header {
+  padding: 14px 16px; font-size: 13px; font-weight: 600;
+  color: var(--text2); border-bottom: 1px solid var(--border);
+  letter-spacing: 1px; text-transform: uppercase;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.history-panel .header .clear-btn {
+  font-size: 11px; color: var(--text2); cursor: pointer; background: none; border: none;
+  padding: 2px 6px; border-radius: 4px;
+}
+.history-panel .header .clear-btn:hover { color: #ff6b6b; }
+.history-list {
+  flex: 1; overflow-y: auto; padding: 4px;
+}
+.history-item {
+  padding: 10px 12px; margin: 2px 0;
+  background: var(--surface2); border-radius: 6px;
+  font-size: 13px; cursor: pointer; transition: all .15s;
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.history-item:hover { background: #222240; }
+.history-item .utterance { flex: 1; color: var(--text); font-weight: 500; }
+.history-item .result {
+  display: flex; gap: 6px; align-items: center; font-size: 12px;
+  color: var(--text2);
+}
+.history-item .result .intent-badge {
+  padding: 2px 8px; border-radius: 10px; background: rgba(124,106,240,0.15);
+  color: var(--accent); font-size: 11px;
+}
+.history-item .latency { font-size: 11px; color: var(--text2); }
+
+/* ─── LOADING ─── */
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--text2); border-radius: 50%; border-top-color: var(--accent); animation: spin .6s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 800px) {
+  .main-grid { flex-direction: column; }
+  .history-panel { width: 100%; border-left: none; border-top: 1px solid var(--border); max-height: 200px; }
+  .floorplan { min-height: 200px; }
+}
+
+/* Empty state for history */
+.history-empty {
+  text-align: center; padding: 40px 20px; color: var(--text2); font-size: 13px;
+}
+.history-empty .big-icon { font-size: 36px; margin-bottom: 8px; }
+
+/* Animation for direction arrows */
+.direction-arrow {
+  display: inline-block; font-size: 14px; transition: all .3s;
+}
+.direction-arrow.up { color: #69f0ae; }
+.direction-arrow.down { color: #42a5f5; }
+.direction-arrow.none { color: transparent; }
+
+/* Suggestion examples area */
+.suggestion-list {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  padding: 4px 0;
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <h1>Home Router — AI Demo</h1>
+  <div class="status-badge" id="statusBadge">
+    <span class="dot"></span>
+    <span id="statusText">connecting…</span>
+  </div>
+</div>
+
+<!-- INPUT -->
+<div class="input-area">
+  <input type="text" id="commandInput" placeholder='Try "turn on the kitchen lights"…' autofocus>
+  <button id="sendBtn">Send</button>
+  <div class="suggestion-list" id="suggestionList"></div>
+</div>
+
+<!-- MAIN -->
+<div class="main-grid">
+
+  <!-- FLOOR PLAN -->
+  <div class="floorplan-section">
+    <div class="label">Floor Plan</div>
+
+    <!-- Response card -->
+    <div class="response-card" id="responseCard">
+      <div class="field conf-intent">
+        <div class="tag">Intent</div>
+        <div class="value" id="respIntent">—</div>
+        <div class="bar"><div class="fill" id="barIntent" style="width:0%;background:var(--accent)"></div></div>
+      </div>
+      <div class="field conf-room">
+        <div class="tag">Room</div>
+        <div class="value" id="respRoom">—</div>
+        <div class="bar"><div class="fill" id="barRoom" style="width:0%;background:var(--glow-light)"></div></div>
+      </div>
+      <div class="field conf-dir">
+        <div class="tag">Direction</div>
+        <div class="value" id="respDir">—</div>
+        <div class="bar"><div class="fill" id="barDir" style="width:0%;background:var(--glow-cool)"></div></div>
+      </div>
+      <div class="field conf-confirm">
+        <div class="tag">Confirm</div>
+        <div class="value" id="respConfirm">— <span class="latency-detail"></span></div>
+        <div class="bar"><div class="fill" id="barConfirm" style="width:0%;background:var(--glow-music)"></div></div>
+      </div>
+    </div>
+
+    <!-- Floor plan grid -->
+    <div class="floorplan" id="floorplan">
+      <!-- Kitchen -->
+      <div class="room" data-room="kitchen" style="grid-row:1;grid-column:1">
+        <div class="glow light-glow"></div>
+        <div class="glow music-glow"></div>
+        <div class="glow climate-hot"></div>
+        <div class="glow climate-cold"></div>
+        <div class="glow scene-glow"></div>
+        <div class="rname">🍳 Kitchen</div>
+        <div class="icons">
+          <span data-light="💡">💡</span>
+        </div>
+        <div class="device-label">dimmable light</div>
+      </div>
+
+      <!-- Living Room -->
+      <div class="room" data-room="living_room" style="grid-row:1;grid-column:2">
+        <div class="glow light-glow"></div>
+        <div class="glow music-glow"></div>
+        <div class="glow climate-hot"></div>
+        <div class="glow climate-cold"></div>
+        <div class="glow scene-glow"></div>
+        <div class="rname">🛋️ Living Room</div>
+        <div class="icons">
+          <span data-light="💡">💡</span>
+          <span data-music="🎵">🎵</span>
+          <span data-temp="🌡️">🌡️</span>
+        </div>
+        <div class="device-label">lights · speaker · climate</div>
+      </div>
+
+      <!-- Bedroom -->
+      <div class="room" data-room="bedroom" style="grid-row:1;grid-column:3">
+        <div class="glow light-glow"></div>
+        <div class="glow music-glow"></div>
+        <div class="glow climate-hot"></div>
+        <div class="glow climate-cold"></div>
+        <div class="glow scene-glow"></div>
+        <div class="rname">🛏️ Bedroom</div>
+        <div class="icons">
+          <span data-light="💡">💡</span>
+          <span data-temp="🌡️">🌡️</span>
+        </div>
+        <div class="device-label">dimmable light · climate</div>
+      </div>
+
+      <!-- Office -->
+      <div class="room" data-room="office" style="grid-row:2;grid-column:1">
+        <div class="glow light-glow"></div>
+        <div class="glow music-glow"></div>
+        <div class="glow climate-hot"></div>
+        <div class="glow climate-cold"></div>
+        <div class="glow scene-glow"></div>
+        <div class="rname">📚 Office</div>
+        <div class="icons">
+          <span data-light="💡">💡</span>
+          <span data-music="🎵">🎵</span>
+          <span data-temp="🌡️">🌡️</span>
+        </div>
+        <div class="device-label">lights · speaker · climate</div>
+      </div>
+
+      <!-- Outside -->
+      <div class="room" data-room="outside" style="grid-row:2;grid-column:2/4">
+        <div class="glow light-glow"></div>
+        <div class="glow music-glow"></div>
+        <div class="glow scene-glow"></div>
+        <div class="rname">🌿 Garden / Outside</div>
+        <div class="icons">
+          <span data-light="💡">💡</span>
+        </div>
+        <div class="device-label">garden lights · patio</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history-panel">
+    <div class="header">
+      <span>Command History</span>
+      <button class="clear-btn" id="clearHistory">clear</button>
+    </div>
+    <div class="history-list" id="historyList">
+      <div class="history-empty">
+        <div class="big-icon">🗣️</div>
+        <div>Type a command to get started</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API = window.location.origin + '/classify';
+
+// State
+let history = [];
+
+// DOM refs
+const input = document.getElementById('commandInput');
+const sendBtn = document.getElementById('sendBtn');
+const statusBadge = document.getElementById('statusBadge');
+const statusText = document.getElementById('statusText');
+const respIntent = document.getElementById('respIntent');
+const respRoom = document.getElementById('respRoom');
+const respDir = document.getElementById('respDir');
+const respConfirm = document.getElementById('respConfirm');
+const barIntent = document.getElementById('barIntent');
+const barRoom = document.getElementById('barRoom');
+const barDir = document.getElementById('barDir');
+const barConfirm = document.getElementById('barConfirm');
+const historyList = document.getElementById('historyList');
+const floorplan = document.getElementById('floorplan');
+const suggestionList = document.getElementById('suggestionList');
+
+// Suggestions
+const SUGGESTIONS = [
+  'turn on the kitchen lights',
+  'dim the bedroom lights',
+  'lights off',
+  'play some music in the living room',
+  'pause the music',
+  'turn the music up',
+  'make it warmer',
+  "it's too hot in here",
+  'activate movie mode',
+  'goodnight',
+  "what's the weather like",
+];
+
+SUGGESTIONS.forEach(s => {
+  const btn = document.createElement('button');
+  btn.textContent = s.length > 30 ? s.slice(0, 30) + '…' : s;
+  btn.title = s;
+  btn.addEventListener('click', () => { input.value = s; send(); });
+  suggestionList.appendChild(btn);
+});
+
+function getRoomEl(room) {
+  if (room === 'whole_home') return null;
+  return floorplan.querySelector(`[data-room="${room}"]`);
+}
+
+function clearRoomStates() {
+  floorplan.querySelectorAll('.room').forEach(el => {
+    el.classList.remove('lit', 'off', 'music-playing', 'climate-hot', 'climate-cold', 'scene-active');
+    el.querySelectorAll('.glow').forEach(g => {
+      g.classList.remove('active');
+      g.style.opacity = '';
+    });
+  });
+}
+
+function applyVisualResponse(data) {
+  clearRoomStates();
+
+  const room = data.room;
+  const intent = data.intent;
+  const dir = data.direction;
+  const roomEl = getRoomEl(room);
+
+  // Light on/off/dim
+  if (intent === 'light_on' || intent === 'light_off' || intent === 'light_dim') {
+    const on = intent === 'light_on' || intent === 'light_dim';
+    const off = intent === 'light_off';
+    const applyToRoom = (el) => {
+      el.classList.remove('off');
+      el.classList.remove('lit');
+      el.querySelector('.light-glow')?.classList.remove('active');
+      if (on) {
+        el.classList.add('lit');
+        el.querySelector('.light-glow')?.classList.add('active');
+        if (intent === 'light_dim') {
+          const intensity = dir === 'up' ? '0.25' : '0.08';
+          const glow = el.querySelector('.light-glow');
+          if (glow) glow.style.opacity = intensity;
+        }
+      } else if (off) {
+        el.classList.add('off');
+      }
+    };
+    if (roomEl) {
+      applyToRoom(roomEl);
+    } else if (room === 'whole_home') {
+      floorplan.querySelectorAll('.room').forEach(applyToRoom);
+    }
+  }
+
+  // Music
+  if (intent === 'music_play') {
+    if (roomEl) {
+      roomEl.classList.add('music-playing');
+      roomEl.querySelector('.music-glow')?.classList.add('active');
+    } else if (room === 'whole_home') {
+      floorplan.querySelectorAll('.room').forEach(el => {
+        if (el.dataset.room === 'living_room' || el.dataset.room === 'office') {
+          el.classList.add('music-playing');
+          el.querySelector('.music-glow')?.classList.add('active');
+        }
+      });
+    }
+  }
+  if (intent === 'music_pause') {
+    floorplan.querySelectorAll('.room').forEach(el => {
+      el.classList.remove('music-playing');
+      el.querySelector('.music-glow')?.classList.remove('active');
+    });
+  }
+  if (intent === 'music_vol') {
+    // Keep existing music state, just show direction in response
+    if (roomEl) {
+      roomEl.classList.add('music-playing');
+      roomEl.querySelector('.music-glow')?.classList.add('active');
+    }
+  }
+
+  // Climate
+  if (intent === 'climate_set') {
+    const isHot = dir === 'up';
+    if (roomEl) {
+      roomEl.classList.add(isHot ? 'climate-hot' : 'climate-cold');
+      roomEl.querySelector(isHot ? '.climate-hot' : '.climate-cold')?.classList.add('active');
+    } else if (room === 'whole_home') {
+      floorplan.querySelectorAll('.room').forEach(el => {
+        el.classList.add(isHot ? 'climate-hot' : 'climate-cold');
+        el.querySelector(isHot ? '.climate-hot' : '.climate-cold')?.classList.add('active');
+      });
+    }
+  }
+
+  // Scene
+  if (intent === 'scene') {
+    if (roomEl) {
+      roomEl.classList.add('scene-active');
+      roomEl.querySelector('.scene-glow')?.classList.add('active');
+    } else if (room === 'whole_home') {
+      floorplan.querySelectorAll('.room').forEach(el => {
+        el.classList.add('scene-active');
+        el.querySelector('.scene-glow')?.classList.add('active');
+      });
+    }
+  }
+
+  // Unknown
+  if (intent === 'unknown') {
+    // Flash a subtle "?" on the room
+    if (roomEl) {
+      roomEl.style.borderColor = 'rgba(255,255,255,0.1)';
+      setTimeout(() => { if (roomEl) roomEl.style.borderColor = ''; }, 1500);
+    }
+  }
+}
+
+function updateResponseCard(data) {
+  const conf = data.confidence;
+  respIntent.textContent = data.intent + (data.direction !== 'none' ? ` ${directionArrow(data.direction)}` : '');
+  respRoom.textContent = roomLabel(data.room);
+  respDir.textContent = data.direction;
+  respConfirm.innerHTML = `${Math.round(conf.confirm * 100)}% <span class="latency-detail">${data.latency_ms}ms</span>`;
+
+  barIntent.style.width = `${Math.round(conf.intent * 100)}%`;
+  barRoom.style.width = `${Math.round(conf.room * 100)}%`;
+  barDir.style.width = `${Math.round(conf.direction * 100)}%`;
+  barConfirm.style.width = `${Math.round(conf.confirm * 100)}%`;
+}
+
+function roomLabel(r) {
+  const labels = { living_room:'Living Room', kitchen:'Kitchen', bedroom:'Bedroom', office:'Office', outside:'Garden/Outside', whole_home:'Whole Home' };
+  return labels[r] || r;
+}
+
+function directionArrow(d) {
+  if (d === 'up') return '↑';
+  if (d === 'down') return '↓';
+  return '';
+}
+
+function addHistory(data) {
+  if (historyList.querySelector('.history-empty')) {
+    historyList.innerHTML = '';
+  }
+  history.unshift(data);
+  if (history.length > 50) history.pop();
+
+  const item = document.createElement('div');
+  item.className = 'history-item';
+  item.innerHTML = `
+    <div class="utterance">${escapeHtml(data.utterance)}</div>
+    <div class="result">
+      <span class="intent-badge">${data.intent}</span>
+      <span>${data.latency_ms}ms</span>
+    </div>
+  `;
+  item.addEventListener('click', () => {
+    input.value = data.utterance;
+  });
+  historyList.prepend(item);
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+async function send() {
+  const text = input.value.trim();
+  if (!text) return;
+
+  sendBtn.disabled = true;
+  sendBtn.textContent = '…';
+
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ utterance: text }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    updateResponseCard(data);
+    applyVisualResponse(data);
+    addHistory(data);
+  } catch (err) {
+    respIntent.textContent = '⚠️ Error';
+    respRoom.textContent = err.message;
+    respDir.textContent = '—';
+    respConfirm.innerHTML = '—';
+    barIntent.style.width = '0%';
+    barRoom.style.width = '0%';
+    barDir.style.width = '0%';
+    barConfirm.style.width = '0%';
+  } finally {
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Send';
+  }
+}
+
+// Event handlers
+sendBtn.addEventListener('click', send);
+input.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+
+document.getElementById('clearHistory').addEventListener('click', () => {
+  history = [];
+  historyList.innerHTML = `<div class="history-empty"><div class="big-icon">🗣️</div><div>Type a command to get started</div></div>`;
+});
+
+// Health check
+async function checkHealth() {
+  try {
+    const res = await fetch(window.location.origin + '/health');
+    const h = await res.json();
+    if (h.ready) {
+      statusBadge.className = 'status-badge online';
+      statusText.textContent = `online · ${h.device} · ${h.model.split('/')[1]}`;
+    } else {
+      statusText.textContent = 'loading…';
+    }
+  } catch {
+    statusText.textContent = 'offline';
+  }
+}
+checkHealth();
+setInterval(checkHealth, 10000);
+
+
+console.log('🏠 Home Router Demo ready');
+</script>
+</body>
+</html>
