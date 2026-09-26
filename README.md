@@ -111,7 +111,7 @@ Room accuracy is excellent — the model nearly always picks the right room or c
 ### Latency (CPU, no GPU offload)
 
 | | Mean | p50 | p95 | p99 | Max |
-|---|---|---:|---:|---:|---:|---:|
+|:---:|:---:|:---:|:---:|:---:|:---:|
 | Server (inference) | 973 ms | 974 ms | 1000 ms | 1008 ms | 1036 ms |
 | Client (network + inference) | 976 ms | 977 ms | 1003 ms | 1011 ms | 1039 ms |
 
@@ -120,7 +120,7 @@ Room accuracy is excellent — the model nearly always picks the right room or c
 ### Per-intent breakdown
 
 | Intent | N | Accuracy | Mean confidence (correct) | Mean confidence (wrong) |
-|---|---|---:|---:|---:|---:|
+|:---:|:---:|:---:|:---:|:---:|
 | `light_on` | 25 | **100%** | 0.97 | — |
 | `light_off` | 25 | 96% | 0.99 | 1.0 |
 | `light_dim` | 25 | 76% | 0.80 | 0.77 |
@@ -140,7 +140,7 @@ The weak spots are predictable:
 ### Confusion matrix
 
 | expected \ predicted | `climate` | `dim` | `off` | `on` | `pause` | `play` | `vol` | `scene` | `unknown` |
-|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|
 | `climate_set` | **24** | 1 | — | — | — | — | — | — | — |
 | `light_dim` | — | **19** | 4 | 2 | — | — | — | — | — |
 | `light_off` | — | — | **24** | 1 | — | — | — | — | — |
