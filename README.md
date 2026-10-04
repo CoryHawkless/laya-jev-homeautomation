@@ -1,4 +1,4 @@
-# 🏠 Home Router Bench
+# Home Router Bench
 
 > I was reading about Jev — a typed-decision model from [TypeSafe](https://typesafe.ai) — and got pretty excited about the concept: one forward pass, multiple structured fields out the other side. But Jev isn't open-source. I poked around, found [Laya](https://huggingface.co/convaiinnovations/laya) by Convai Innovations, which implements the same "answer multiple questions in a single pass" architecture, and realised I could wrap it in a little test rig for a problem domain I actually use every day: home automation.
 
@@ -85,19 +85,27 @@ Returns:
 
 ## Benchmark results
 
-I ran the full 200-case benchmark on the hardware I had lying around — here's what it looks like.
+I ran the full benchmark suite across multiple machines and hardware configurations with **Laya 0.3.26** (latest at time of testing) to optimize for raw inference speed.
 
-### Hardware
+### Hardware comparison
 
-| Component | Spec |
-|---|---|
-| **CPU** | Intel Xeon E5-2698 v3 (8-core / 16-thread @ 2.30 GHz) |
-| **GPU** | NVIDIA GeForce RTX 2060 (not utilised — this was a CPU-only run) |
-| **Model** | `convaiinnovations/laya` |
-| **Device** | `cpu` |
-| **Container** | Docker, CPU profile |
+| Machine | CPU | GPU | Device | Notes |
+|---|---|---|---|---|
+| **Local dev box** | Intel Xeon E5-2698 v3 (8-core/16-thread @ 2.30GHz) | **NVIDIA RTX 2060** | `cuda` | CPU-only first run |
+| **Local dev box (GPU)** | Intel Xeon E5-2698 v3 (8-core/16-thread @ 2.30GHz) | **NVIDIA RTX 2060** | `cuda` | GPU offload enabled |
+| **epyc02** | AMD EPYC 7402P (24-core/48-thread @ 2.80GHz) | N/A | `cpu` | Modern server CPU |
 
-### Headline accuracy
+### Speed (raw latency)
+
+| Configuration | Mean | p50 | p95 | p99 | Max | Notes |
+|---|---|---:|---:|---:|---:|---|
+| **RTX 2060 (GPU)** | 59.4 ms | **54.6 ms** | 69.2 ms | 136.8 ms | 136.8 ms | GPU offload (~11× faster) |
+| **EPYC 7402P (CPU)** | 656.8 ms | **619.6 ms** | 835.5 ms | 1152.8 ms | 1152.8 ms | Much faster than the older Xeon |
+| **Xeon E5-2698 v3 (CPU)** | 973.2 ms | **974.0 ms** | 999.7 ms | 1007.9 ms | 1036.0 ms | Baseline, no GPU offload |
+
+The RTX 2060 delivers a **~11× speedup** over CPU-only inference on modern CPUs (54.6 ms p50 vs ~620 ms). The AMD EPYC 7402P is significantly faster than the older Intel Xeon E5-2698 v3 for CPU-only inference.
+
+### Headline accuracy (200-case corpus)
 
 | Field | Accuracy |
 |---|---:|
@@ -106,16 +114,7 @@ I ran the full 200-case benchmark on the hardware I had lying around — here's 
 | Direction (excluding unknowns) | 88.5% |
 | All three fields correct | **77.5%** |
 
-Room accuracy is excellent — the model nearly always picks the right room or correctly falls back to `whole_home`. Direction gets confused when a command uses directional language that isn't really directional ("start up the kitchen lights" — "up" leaks through). Intent is the main lever to pull.
-
-### Latency (CPU, no GPU offload)
-
-| | Mean | p50 | p95 | p99 | Max |
-|:---:|:---:|:---:|:---:|:---:|:---:|
-| Server (inference) | 973 ms | 974 ms | 1000 ms | 1008 ms | 1036 ms |
-| Client (network + inference) | 976 ms | 977 ms | 1003 ms | 1011 ms | 1039 ms |
-
-~1 second per classify on an older Xeon, no accelerators. On the CPU profile the model fits in ~6 GB of RAM. With GPU offload (the `gpu` compose profile) you'd expect p50 latency around 50–150 ms on this RTX 2060 — I haven't run that benchmark yet, but the improvement would be dramatic.
+Accuracy remains consistent across configurations (the model produces identical outputs regardless of device). Room accuracy is excellent — the model nearly always picks the right room or correctly falls back to `whole_home`. Direction gets confused when a command uses directional language that isn't really directional ("start up the kitchen lights" — "up" leaks through). Intent is the main lever to pull.
 
 ### Per-intent breakdown
 
@@ -140,7 +139,7 @@ The weak spots are predictable:
 ### Confusion matrix
 
 | expected \ predicted | `climate` | `dim` | `off` | `on` | `pause` | `play` | `vol` | `scene` | `unknown` |
-|---|---|---|---:|---:|---:|---:|---:|---:|---:|
+|---|---|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | `climate_set` | **24** | 1 | — | — | — | — | — | — | — |
 | `light_dim` | — | **19** | 4 | 2 | — | — | — | — | — |
 | `light_off` | — | — | **24** | 1 | — | — | — | — | — |
