@@ -24,7 +24,7 @@ services:
     restart: unless-stopped
 
   # GPU mode. Requires the NVIDIA Container Toolkit.
-  #   docker compose --profile gpu up router-gpu
+  #   docker compose --profile gpu up -d router-gpu
   router-gpu:
     build: ./router
     image: home-router:cpu   # same image, just a different runtime + env
@@ -52,8 +52,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 60
-      start_period: 60s
-    restart: unless-stopped
+      start_period: 120s
+    restart: always
 
 volumes:
   hf-cache: {}
