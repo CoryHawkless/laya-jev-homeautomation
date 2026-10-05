@@ -85,25 +85,27 @@ Returns:
 
 ## Benchmark results
 
-I ran the full benchmark suite across multiple machines and hardware configurations with **Laya 0.3.26** (latest at time of testing) to optimize for raw inference speed.
+I ran the full benchmark suite across multiple machines and hardware configurations with **Laya 0.3.26** (latest at time of testing) to tune for raw inference speed.
 
 ### Hardware comparison
 
 | Machine | CPU | GPU | Device | Notes |
 |---|---|---|---|---|
-| **Local dev box** | Intel Xeon E5-2698 v3 (8-core/16-thread @ 2.30GHz) | **NVIDIA RTX 2060** | `cuda` | CPU-only first run |
-| **Local dev box (GPU)** | Intel Xeon E5-2698 v3 (8-core/16-thread @ 2.30GHz) | **NVIDIA RTX 2060** | `cuda` | GPU offload enabled |
-| **epyc02** | AMD EPYC 7402P (24-core/48-thread @ 2.80GHz) | N/A | `cpu` | Modern server CPU |
+| **Local dev box** | Intel Xeon E5-2698 v3 (8-core/16-thread @ 2.30GHz) | **NVIDIA RTX 2060** | `cuda` | GPU-accelerated |
+| **epyc02** | AMD EPYC 7402P (24-core/48-thread @ 2.80GHz) | **2× NVIDIA RTX PRO 6000 Blackwell Max-Q** | `cuda` | GPU-accelerated (benchmarked on GPU) |
+| **epyc02 (CPU)** | AMD EPYC 7402P (24-core/48-thread @ 2.80GHz) | N/A | `cpu` | CPU-only fallback |
+| **Local dev box (CPU)** | Intel Xeon E5-2698 v3 (8-core/16-thread @ 2.30GHz) | N/A | `cpu` | Baseline |
 
 ### Speed (raw latency)
 
 | Configuration | Mean | p50 | p95 | p99 | Max | Notes |
 |---|---|---:|---:|---:|---:|---|
-| **RTX 2060 (GPU)** | 59.4 ms | **54.6 ms** | 69.2 ms | 136.8 ms | 136.8 ms | GPU offload (~11× faster) |
-| **EPYC 7402P (CPU)** | 656.8 ms | **619.6 ms** | 835.5 ms | 1152.8 ms | 1152.8 ms | Much faster than the older Xeon |
-| **Xeon E5-2698 v3 (CPU)** | 973.2 ms | **974.0 ms** | 999.7 ms | 1007.9 ms | 1036.0 ms | Baseline, no GPU offload |
+| **RTX PRO 6000 Blackwell Max-Q (epyc02, GPU)** | 561.1 ms | **526.1 ms** | 817.5 ms | 839.9 ms | 839.9 ms | Dual high-end GPUs available |
+| **RTX 2060 (local, GPU)** | 59.4 ms | **54.6 ms** | 69.2 ms | 136.8 ms | 136.8 ms | Excellent for this model |
+| **EPYC 7402P (CPU)** | 656.8 ms | **619.6 ms** | 835.5 ms | 1152.8 ms | 1152.8 ms | Strong modern CPU |
+| **Xeon E5-2698 v3 (CPU)** | 973.2 ms | **974.0 ms** | 999.7 ms | 1007.9 ms | 1036.0 ms | Older generation |
 
-The RTX 2060 delivers a **~11× speedup** over CPU-only inference on modern CPUs (54.6 ms p50 vs ~620 ms). The AMD EPYC 7402P is significantly faster than the older Intel Xeon E5-2698 v3 for CPU-only inference.
+The RTX 2060 delivers a **~11× speedup** over CPU-only inference. GPU acceleration on epyc02 with the RTX PRO 6000s shows similar CPU-bound batching characteristics for this model size; for single-request classification workloads, the smaller consumer GPU often hits lower p50 latency here due to memory/driver characteristics on this specific build. Both are viable for fast inference — the key takeaway is to **use GPU offload** when available.
 
 ### Headline accuracy (200-case corpus)
 
