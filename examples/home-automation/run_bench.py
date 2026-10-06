@@ -10,7 +10,7 @@ records raw predictions and latencies, then produces:
 
 Usage:
     python run_bench.py                                         # defaults below
-    python run_bench.py --router http://epyc02:8010 --out out/
+    python run_bench.py --router http://epyc02:8000 --out out/
     python run_bench.py --limit 20                              # smoke-test
 """
 from __future__ import annotations
@@ -25,6 +25,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import httpx
+from home_questions import HOME_QUESTIONS
 
 
 # ---- IO -------------------------------------------------------------------
@@ -35,7 +36,7 @@ def load_cases(path: Path) -> list[dict]:
 
 
 def wait_ready(client: httpx.Client, url: str, timeout_s: float = 300.0) -> dict:
-    """Poll /health until ready=true or timeout. First run downloads weights."""
+    """Poll /health until status=ok or timeout. First run downloads weights."""
     deadline = time.time() + timeout_s
     last_err: Exception | None = None
     while time.time() < deadline:
@@ -43,19 +44,19 @@ def wait_ready(client: httpx.Client, url: str, timeout_s: float = 300.0) -> dict
             r = client.get(f"{url}/health", timeout=10)
             r.raise_for_status()
             h = r.json()
-            if h.get("ready"):
+            if h.get("status") == "ok":
                 return h
         except Exception as e:  # noqa: BLE001 -- best-effort retry
             last_err = e
         time.sleep(2.0)
     raise RuntimeError(
-        f"router at {url} not ready within {timeout_s:.0f}s (last err: {last_err})"
+        f"laya-serve at {url} not ready within {timeout_s:.0f}s (last err: {last_err})"
     )
 
 
 def run_one(client: httpx.Client, url: str, utterance: str) -> dict:
     t0 = time.perf_counter()
-    r = client.post(f"{url}/classify", json={"utterance": utterance}, timeout=60)
+    r = client.post(f"{url}/v1/systemone", json={"state": {"utterance": utterance}, "questions": HOME_QUESTIONS}, timeout=60)
     r.raise_for_status()
     result = r.json()
     result["client_latency_ms"] = round((time.perf_counter() - t0) * 1000.0, 2)
@@ -83,10 +84,11 @@ def evaluate(cases: list[dict], results: list[dict]) -> dict:
 
     for case, result in zip(cases, results):
         exp = case["expected"]
-        got_intent = result["intent"]
-        got_room = result["room"]
-        got_dir = result["direction"]
-        conf = result["confidence"]["intent"]
+        ans = result["answers"]
+        got_intent = ans["intent"]["choice"]
+        got_room = ans["room"]["choice"]
+        got_dir = ans["direction"]["choice"]
+        conf = ans["intent"]["answer_confidence"]
 
         latencies_server.append(result["latency_ms"])
         latencies_client.append(result["client_latency_ms"])
@@ -248,8 +250,8 @@ def render_markdown(summary: dict, meta: dict) -> str:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--router", default="http://localhost:8010",
-                    help="base URL of the router service")
+    ap.add_argument("--router", default="http://localhost:8000",
+                    help="base URL of the laya-serve instance")
     ap.add_argument("--cases", type=Path,
                     default=Path(__file__).with_name("cases.jsonl"),
                     help="path to the JSONL case file")
@@ -270,7 +272,7 @@ def main() -> int:
     with httpx.Client() as client:
         print(f"Waiting for {args.router}/health ...")
         health = wait_ready(client, args.router)
-        print(f"  ready: model={health.get('model')} device={health.get('device')}")
+        print(f"  ready: device={health.get('device','?')} loaded={health.get('loaded',[])}")
 
         results: list[dict] = []
         t_start = time.perf_counter()

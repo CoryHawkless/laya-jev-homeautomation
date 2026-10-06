@@ -1,45 +1,44 @@
 services:
-  # Default: CPU. Warms up in a few seconds, ~200-500 ms per classify call.
-  router:
-    build: ./router
-    image: home-router:cpu
-    container_name: home-router
+  # Official laya-serve: Jev-compatible POST /v1/systemone inference endpoint.
+  # No custom inference code — this is the upstream server from Convai Innovations.
+  laya-serve:
+    build: ./server
+    image: home-router-laya:latest
+    container_name: home-router-laya
     profiles: [cpu, default]
     ports:
-      - "8010:8010"
+      - "8000:8000"
     environment:
-      LAYA_MODEL: convaiinnovations/laya
       LAYA_DEVICE: cpu
       LAYA_PRELOAD: "1"
-      CONFIDENCE_THRESHOLD: "0.75"
-      HOME_API_BASE: http://mock-home.local/api  # dispatch calls no-op unless you point it at something real
+      LAYA_LOG_LEVEL: info
+      OMP_NUM_THREADS: "4"
     volumes:
-      - hf-cache:/root/.cache/huggingface
+      - hf-cache:/home/laya/.cache/huggingface
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:8010/health | grep -q '\"ready\": *true'"]
-      interval: 5s
-      timeout: 3s
-      retries: 60
-      start_period: 60s
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/health | grep -q '\"status\": *\"ok\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 120s
     restart: unless-stopped
 
-  # GPU mode. Requires the NVIDIA Container Toolkit.
-  #   docker compose --profile gpu up -d router-gpu
-  router-gpu:
-    build: ./router
-    image: home-router:cpu   # same image, just a different runtime + env
-    container_name: home-router-gpu
+  # GPU mode. Requires the NVIDIA Container Toolkit on the host.
+  #   docker compose --profile gpu up -d laya-serve
+  laya-serve-gpu:
+    build: ./server
+    image: home-router-laya:latest
+    container_name: home-router-laya-gpu
     profiles: [gpu]
     ports:
-      - "8010:8010"
+      - "8000:8000"
     environment:
-      LAYA_MODEL: convaiinnovations/laya
       LAYA_DEVICE: cuda
       LAYA_PRELOAD: "1"
-      CONFIDENCE_THRESHOLD: "0.75"
-      HOME_API_BASE: http://mock-home.local/api
+      LAYA_LOG_LEVEL: info
+      OMP_NUM_THREADS: "4"
     volumes:
-      - hf-cache:/root/.cache/huggingface
+      - hf-cache:/home/laya/.cache/huggingface
     deploy:
       resources:
         reservations:
@@ -48,12 +47,12 @@ services:
               count: 1
               capabilities: [gpu]
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:8010/health | grep -q '\"ready\": *true'"]
-      interval: 5s
-      timeout: 3s
-      retries: 60
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/health | grep -q '\"status\": *\"ok\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
       start_period: 120s
-    restart: always
+    restart: unless-stopped
 
 volumes:
   hf-cache: {}

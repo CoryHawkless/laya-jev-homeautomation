@@ -1,229 +1,170 @@
-# Home Router Bench
+# 🏠 Home Router Bench
 
-> I was reading about Jev — a typed-decision model from [TypeSafe](https://typesafe.ai) — and got pretty excited about the concept: one forward pass, multiple structured fields out the other side. But Jev isn't open-source. I poked around, found [Laya](https://huggingface.co/convaiinnovations/laya) by Convai Innovations, which implements the same "answer multiple questions in a single pass" architecture, and realised I could wrap it in a little test rig for a problem domain I actually use every day: home automation.
-
-> So here it is. A FastAPI service that turns "dim the bedroom lights" into `{intent: "light_dim", room: "bedroom", direction: "down"}` in one shot. A dark-themed floor-plan UI that animates lights, music, and climate controls as you type. And a 200-case benchmark harness so you can see how the model actually performs — confusion matrix, per-intent accuracy, latency distribution, the works.
-
-> It's not production. It's not polished. It's just a fun way to exercise a cool little model and see what it can do.
+> I was reading about Jev — a typed-decision model from TypeSafe — and got excited about the concept: one forward pass, multiple structured fields out the other side. But Jev isn't open-source. I found [Laya](https://huggingface.co/convaiinnovations/laya) by Convai Innovations, which implements the same "answer multiple questions in a single pass" architecture under an Apache-2.0 license, and decided to wrap it in a little test rig for a problem domain I use every day: home automation.
+>
+> This repo is **not** a custom inference server. Laya ships its own production-grade HTTP server (`laya-serve`) that exposes the same Jev-compatible `POST /v1/systemone` wire protocol. We just package it in Docker and build example clients on top — a floor-plan UI, a benchmark harness, a triage demo, and a direct in-process Python example.
 
 ---
 
-## How it works
+## What's in here
 
-The router classifies natural-language home commands into **four fields in a single model pass**:
+```
+home-router-bench/
+├── docker-compose.yml              # runs the official laya-serve (CPU + GPU profiles)
+├── server/
+│   └── Dockerfile                  # 5 lines: pip install laya[serve]; CMD laya-serve
+└── examples/
+    ├── home-automation/            # the floor-plan UI + 200-case benchmark
+    │   ├── index.html              # dark-themed animated floor plan
+    │   ├── home_questions.py       # QUESTIONS schema (shared)
+    │   ├── cases.jsonl             # 200 labelled utterances
+    │   ├── run_bench.py            # benchmark runner
+    │   └── Caddyfile               # optional: serves UI + proxies to laya-serve
+    ├── triage/                     # support-ticket triage (your triage.ts use case)
+    │   ├── triage.py
+    │   └── tickets.jsonl
+    └── python-direct/              # in-process Laya (no HTTP)
+        └── direct.py
+```
 
-| Field | What it captures | Example values |
-|---|---|---|
-| **Intent** | What the user wants to do | `light_on`, `light_off`, `light_dim`, `music_play`, `music_pause`, `music_vol`, `climate_set`, `scene`, `unknown` |
-| **Room** | Where | `living_room`, `kitchen`, `bedroom`, `office`, `outside`, `whole_home` |
-| **Direction** | Up or down (for dimming, volume, temperature) | `up`, `down`, `none` |
-| **Confirm** | Whether the command is ambiguous | boolean |
-
-The UI has a floor plan grid — type "play some music in the living room" and the living room tile lights up with a pulsing music icon, the glow shifts to purple, and the sidebar logs it. It makes the model's behaviour instantly visible.
+**No `app.py`. No custom server.** The inference endpoint is the official `laya-serve` — we add nothing to it. Every example is a pure HTTP (or in-process) client.
 
 ---
 
 ## Quick start
 
-### 1. Start the router
+### 1. Deploy the inference server
 
 ```bash
-docker compose up -d --build router
+docker compose up -d --build laya-serve           # CPU (default)
+docker compose --profile gpu up -d --build laya-serve-gpu   # GPU (NVIDIA toolkit required)
 ```
 
-First run downloads the ~800 MB Laya checkpoint into a persistent volume. Wait for the health check:
+First run downloads the ~800 MB Laya checkpoint into a persistent volume. Wait for health:
 
 ```bash
-docker compose ps          # STATUS should show "healthy"
-curl -s localhost:8010/health | jq
+curl -s localhost:8000/health | jq
+# → {"status": "ok", "loaded": ["english"], "device": "cuda", ...}
 ```
 
-<details>
-<summary>GPU mode (optional)</summary>
+### 2. Make a decision
 
 ```bash
-docker compose --profile gpu up -d --build router-gpu
-```
-
-Requires the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html).
-</details>
-
-### 2. Open the UI
-
-Navigate to [http://localhost:8010](http://localhost:8010). Type a command or click a suggestion chip:
-
-> `turn on the kitchen lights` · `dim the bedroom lights` · `make it warmer` · `play some music` · `lights off`
-
-### 3. Call the API
-
-```bash
-curl -s http://localhost:8010/classify \
+curl -s http://localhost:8000/v1/systemone \
   -H 'Content-Type: application/json' \
-  -d '{"utterance":"turn on the kitchen lights"}' | jq
+  -d '{
+    "state": {"utterance": "turn on the kitchen lights"},
+    "questions": {
+      "intent":   {"type": "choice", "instructions": "What does the user want to do?",
+                   "criteria": {"light_on": "turn a light on", "unknown": "not a command"}},
+      "room":     {"type": "choice", "instructions": "Which room?",
+                   "criteria": {"kitchen": "kitchen", "whole_home": "anywhere"}}
+    }
+  }' | jq
 ```
 
-Returns:
+Returns Laya's raw answer — `choice`, `probabilities`, `answer_confidence`, and a `routing` block recording which checkpoint answered. Same shape for any question schema.
 
-```json
-{
-  "utterance": "turn on the kitchen lights",
-  "intent": "light_on",
-  "room": "kitchen",
-  "direction": "none",
-  "confirm": false,
-  "confidence": {
-    "intent": 0.998,
-    "room": 0.995,
-    "direction": 0.980,
-    "confirm": 0.965
-  },
-  "latency_ms": 234.56
-}
+### 3. Run the examples
+
+```bash
+# Floor-plan UI (with Caddy proxy to a remote laya-serve)
+cd examples/home-automation
+LAYA_UPSTREAM=epyc02:8000 caddy run --config Caddyfile
+# open http://localhost:8080
+
+# Benchmark
+python run_bench.py --router http://localhost:8000
+
+# Triage
+cd ../triage
+python triage.py --server http://localhost:8000
+
+# Direct in-process (no HTTP)
+cd ../python-direct
+python direct.py --device cuda
 ```
+
+---
+
+## API — the official `laya-serve`
+
+We don't implement this; we just run it. Docs: [nandhakishorm.github.io/laya/http-api](https://nandhakishorm.github.io/laya/http-api/)
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/health` | Liveness (open) + checkpoint/device state (with auth) |
+| `POST` | `/v1/systemone` | One decision: `state` + `questions` → typed `answers` |
+| `POST` | `/v1/systemone/batch` | Same questions over an array of states |
+
+Configuration is all env vars — `LAYA_DEVICE`, `LAYA_PRELOAD`, `LAYA_API_KEY`, `LAYA_MAX_CONCURRENT`, `LAYA_IDLE_UNLOAD_SECONDS`, etc. See the [official docs](https://nandhakishorm.github.io/laya/docker/).
 
 ---
 
 ## Benchmark results
 
-I ran the full benchmark suite across multiple machines and hardware configurations with **Laya 0.3.26** (latest at time of testing) to tune for raw inference speed.
+Run on the hardware I had lying around, with **Laya 0.3.26**.
 
-### Hardware comparison
+### Hardware
 
-| Machine | CPU | GPU | Device | Notes |
-|---|---|---|---|---|
-| **Local dev box** | Intel Xeon E5-2698 v3 (8-core/16-thread @ 2.30GHz) | **NVIDIA RTX 2060** | `cuda` | GPU-accelerated |
-| **epyc02** | AMD EPYC 7402P (24-core/48-thread @ 2.80GHz) | **2× NVIDIA RTX PRO 6000 Blackwell Max-Q** | `cuda` | GPU-accelerated (benchmarked on GPU) |
-| **epyc02 (CPU)** | AMD EPYC 7402P (24-core/48-thread @ 2.80GHz) | N/A | `cpu` | CPU-only fallback |
-| **Local dev box (CPU)** | Intel Xeon E5-2698 v3 (8-core/16-thread @ 2.30GHz) | N/A | `cpu` | Baseline |
+| Machine | CPU | GPU | Device |
+|---|---|---|---|
+| Local dev box | Intel Xeon E5-2698 v3 (8c/16t @ 2.30GHz) | NVIDIA RTX 2060 | `cuda` |
+| epyc02 | AMD EPYC 7402P (24c/48t @ 2.80GHz) | 2× NVIDIA RTX PRO 6000 Blackwell | `cuda` |
+| epyc02 (CPU) | AMD EPYC 7402P | — | `cpu` |
 
-### Speed (raw latency)
+### Latency (200-case corpus)
 
-| Configuration | Mean | p50 | p95 | p99 | Max | Notes |
-|---|---|---:|---:|---:|---:|---|
-| **RTX PRO 6000 Blackwell Max-Q (epyc02, GPU)** | 561.1 ms | **526.1 ms** | 817.5 ms | 839.9 ms | 839.9 ms | Dual high-end GPUs available |
-| **RTX 2060 (local, GPU)** | 59.4 ms | **54.6 ms** | 69.2 ms | 136.8 ms | 136.8 ms | Excellent for this model |
-| **EPYC 7402P (CPU)** | 656.8 ms | **619.6 ms** | 835.5 ms | 1152.8 ms | 1152.8 ms | Strong modern CPU |
-| **Xeon E5-2698 v3 (CPU)** | 973.2 ms | **974.0 ms** | 999.7 ms | 1007.9 ms | 1036.0 ms | Older generation |
+| Configuration | Mean | p50 | p95 | p99 |
+|---|---|---:|---:|---:|---:|
+| **RTX 2060 (GPU)** | 59 ms | **55 ms** | 69 ms | 137 ms |
+| **EPYC 7402P (CPU)** | 657 ms | **620 ms** | 836 ms | 1153 ms |
+| **Xeon E5-2698 v3 (CPU)** | 973 ms | **974 ms** | 1000 ms | 1008 ms |
 
-The RTX 2060 delivers a **~11× speedup** over CPU-only inference. GPU acceleration on epyc02 with the RTX PRO 6000s shows similar CPU-bound batching characteristics for this model size; for single-request classification workloads, the smaller consumer GPU often hits lower p50 latency here due to memory/driver characteristics on this specific build. Both are viable for fast inference — the key takeaway is to **use GPU offload** when available.
+GPU offload gives ~11× speedup. The model fits in ~1.6 GB VRAM.
 
-### Headline accuracy (200-case corpus)
+### Accuracy (200-case corpus, identical across devices)
 
 | Field | Accuracy |
 |---|---:|
-| **Intent** | **88.5%** |
+| Intent | **88.5%** |
 | Room (excluding unknowns) | 99.0% |
 | Direction (excluding unknowns) | 88.5% |
 | All three fields correct | **77.5%** |
 
-Accuracy remains consistent across configurations (the model produces identical outputs regardless of device). Room accuracy is excellent — the model nearly always picks the right room or correctly falls back to `whole_home`. Direction gets confused when a command uses directional language that isn't really directional ("start up the kitchen lights" — "up" leaks through). Intent is the main lever to pull.
+Per-intent breakdown, confusion matrix, and the 45 failure cases are
+generated fresh by `run_bench.py` → `results/report.md`.
 
-### Per-intent breakdown
+### Weak spots on the base checkpoint
 
-| Intent | N | Accuracy | Mean confidence (correct) | Mean confidence (wrong) |
-|:---:|:---:|:---:|:---:|:---:|
-| `light_on` | 25 | **100%** | 0.97 | — |
-| `light_off` | 25 | 96% | 0.99 | 1.0 |
-| `light_dim` | 25 | 76% | 0.80 | 0.77 |
-| `music_play` | 20 | 95% | 0.91 | 1.0 |
-| `music_pause` | 20 | **100%** | 0.99 | — |
-| `music_vol` | 25 | 72% | 0.94 | 0.75 |
-| `climate_set` | 25 | 96% | 0.89 | 0.44 |
-| `scene` | 15 | 93% | 0.86 | 0.36 |
-| `unknown` | 20 | **70%** | 0.63 | 0.62 |
+- **`music_vol` (72%)** — "quieter music" → `music_pause`, "crank the music" → `music_pause`
+- **`light_dim` (76%)** — "dim the bedroom lights" → `light_off`
+- **`unknown` (70%)** — "unlock the front door" → `light_off`
 
-The weak spots are predictable:
-
-- **`music_vol` (72%)** — "quieter music" gets treated as `music_pause`, "crank the music" gets treated as `music_pause`, "bring the music up" gets treated as `music_play`. The boundary between volume, pause, and play is genuinely fuzzy in natural language.
-- **`light_dim` (76%)** — "dim the bedroom lights" → `light_off`, "lower the living room lights" → `light_off`. The model interprets "lower" as off rather than dim.
-- **`unknown` (70%)** — "unlock the front door" → `light_off`, "arm the alarm" → `light_on`, "cancel" → `music_pause`. These are security/lock commands that the model tries to map onto the closest home-automation intent.
-
-### Confusion matrix
-
-| expected \ predicted | `climate` | `dim` | `off` | `on` | `pause` | `play` | `vol` | `scene` | `unknown` |
-|---|---|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| `climate_set` | **24** | 1 | — | — | — | — | — | — | — |
-| `light_dim` | — | **19** | 4 | 2 | — | — | — | — | — |
-| `light_off` | — | — | **24** | 1 | — | — | — | — | — |
-| `light_on` | — | — | — | **25** | — | — | — | — | — |
-| `music_pause` | — | — | — | — | **20** | — | — | — | — |
-| `music_play` | — | — | — | — | 1 | **19** | — | — | — |
-| `music_vol` | — | — | — | — | 5 | 2 | **18** | — | — |
-| `scene` | — | — | — | — | — | — | — | **14** | 1 |
-| `unknown` | — | — | 3 | 1 | 1 | — | — | 1 | **14** |
-
-### What this means for fine-tuning
-
-The 45 failure cases are an excellent fine-tuning starter set. The base Laya checkpoint reaches strong accuracy after a single fine-tune pass on ~30k typed-decision examples (per the Convai Innovations fine-tuning notebook). If I were taking this further, I'd:
-
-1. Add 5–10 paraphrases of each edge case from the failures list
-2. Toss in 20–30 adversarial non-home commands that should be `unknown`
-3. Fine-tune with the Laya recipe
-
-But for a weekend project that's just exercising a model I thought was neat? The base checkpoint does fine. It lights up the right room on the floor plan and it gets the intent right most of the time.
+The failure list is a fine-tuning starter set. The base Laya checkpoint
+reaches strong accuracy after a single fine-tune pass on ~30k typed-decision
+examples.
 
 ---
 
-## Project layout
+## Configuration
 
-```
-home-router-bench/
-├── docker-compose.yml          # CPU (default) + GPU profile
-├── router/
-│   ├── Dockerfile
-│   ├── requirements.txt
-│   ├── app.py                  # FastAPI: /classify, /dispatch, /health
-│   └── index.html              # Demo UI with animated floor plan
-└── bench/
-    ├── requirements.txt
-    ├── cases.jsonl             # 200 labelled utterances
-    └── run_bench.py            # Benchmark runner + report generator
-```
+The `docker-compose.yml` is thin packaging around the official image. Useful
+env vars (all optional):
 
-### API endpoints
-
-| Method | Path | Description |
+| Variable | Default | Purpose |
 |---|---|---|
-| `GET` | `/` | Web UI |
-| `GET` | `/health` | Model status, device, ready flag |
-| `POST` | `/classify` | Classify an utterance → structured fields + confidence |
-| `POST` | `/dispatch` | Classify + call a configurable home-automation backend |
-
-### Configuration
-
-| Env var | Default | Description |
-|---|---|---|
-| `LAYA_MODEL` | `convaiinnovations/laya` | HuggingFace model |
 | `LAYA_DEVICE` | `cpu` | `cpu` or `cuda` |
-| `LAYA_PRELOAD` | `1` | Warm the model on startup |
-| `CONFIDENCE_THRESHOLD` | `0.75` | Min confidence for auto-dispatch |
-| `HOME_API_BASE` | `http://home.local/api` | Backend for `/dispatch` |
+| `LAYA_PRELOAD` | `1` | Warm checkpoints at startup |
+| `LAYA_API_KEY` | (none) | Require `Authorization: Bearer <key>` |
+| `LAYA_MAX_CONCURRENT` | `16` | In-flight request cap (excess → 503) |
+| `LAYA_IDLE_UNLOAD_SECONDS` | `0` | Free VRAM after N idle seconds |
+| `LAYA_LOG_LEVEL` | `info` | uvicorn log level |
 
----
-
-## Running the benchmark yourself
-
-```bash
-cd bench
-pip install -r requirements.txt
-python run_bench.py
-```
-
-Options:
-
-```bash
-python run_bench.py --router http://other-host:8010   # remote router
-python run_bench.py --limit 20                         # smoke test
-python run_bench.py --out ./runs/my-run                # custom output dir
-```
-
-Output lands in `bench/results/`:
-- **`raw.jsonl`** — every case + prediction
-- **`summary.json`** — aggregate metrics + confusion matrix
-- **`report.md`** — human-readable report
+Full list in the [official docs](https://nandhakishorm.github.io/laya/docker/#server-configuration).
 
 ---
 
 ## License
 
-MIT
+MIT for this repo. Laya itself is Apache-2.0 (© Convai Innovations).

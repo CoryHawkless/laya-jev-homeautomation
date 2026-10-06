@@ -6,13 +6,10 @@ __pycache__/
 *.egg-info/
 
 # Benchmark results (regenerate fresh on each run)
-bench/results/raw.jsonl
-bench/results/summary.json
-bench/results/report.md
-bench/results/**/raw.jsonl
-bench/results/**/summary.json
-bench/results/**/report.md
-!bench/results/.gitkeep
+examples/home-automation/results/
+examples/home-automation/runs/
+examples/**/results/
+examples/**/runs/
 
 # IDE
 .vscode/

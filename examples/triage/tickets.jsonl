@@ -1,0 +1,8 @@
+{"id":"t01","ticket":"Hi, my order #4521 still hasn't arrived and it was supposed to be here Tuesday. Can you tell me where it is?","expected":{"intent":"order_status","escalate":false}}
+{"id":"t02","ticket":"I was charged twice for my March subscription — $29.99 appeared twice on my card statement. I want a refund for the duplicate.","expected":{"intent":"billing_dispute","escalate":false}}
+{"id":"t03","ticket":"If you don't fix this I'll be filing a complaint with the FTC and posting about it on Twitter. This is the third time my account has been hacked.","expected":{"intent":"account_access","escalate":true}}
+{"id":"t04","ticket":"Does the TrailMax Pro tent fit a 6ft person and is the fabric fire-retardant?","expected":{"intent":"product_question","escalate":false}}
+{"id":"t05","ticket":"I need to return the blue sweater I bought last week — it arrived with a tear in the sleeve.","expected":{"intent":"return_refund","escalate":false}}
+{"id":"t06","ticket":"I can't log into my account, it keeps saying 'invalid password' even though I just reset it.","expected":{"intent":"account_access","escalate":false}}
+{"id":"t07","ticket":"Cancel my order #8890 please — I found a better price elsewhere.","expected":{"intent":"order_status","escalate":false}}
+{"id":"t08","ticket":"Why was I charged $14.99 this month? My plan was supposed to be $9.99. This is fraud.","expected":{"intent":"billing_dispute","escalate":false}}

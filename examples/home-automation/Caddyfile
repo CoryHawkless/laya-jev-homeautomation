@@ -1,0 +1,26 @@
+# Caddy reverse proxy for the home-automation demo UI.
+#
+# Serves the static UI and proxies /v1/systemone and /health to a remote
+# laya-serve instance at the same origin — no CORS needed in the browser.
+#
+# Usage from this directory:
+#   caddy run
+# Then open http://localhost:8080 in your browser.
+#
+# Set the LAYA_UPSTREAM env var to point at your laya-serve instance:
+#   LAYA_UPSTREAM=192.168.50.179:8000 caddy run
+
+localhost:8080
+
+handle /v1/systemone* {
+    reverse_proxy {$LAYA_UPSTREAM:localhost:8000}
+}
+
+handle /health {
+    reverse_proxy {$LAYA_UPSTREAM:localhost:8000}
+}
+
+handle {
+    root * .
+    file_server
+}
