@@ -43,14 +43,14 @@ docker compose --profile gpu up -d --build laya-serve-gpu   # GPU (NVIDIA toolki
 First run downloads the ~800 MB Laya checkpoint into a persistent volume. Wait for health:
 
 ```bash
-curl -s localhost:8000/health | jq
+curl -s localhost:8010/health | jq
 # → {"status": "ok", "loaded": ["english"], "device": "cuda", ...}
 ```
 
 ### 2. Make a decision
 
 ```bash
-curl -s http://localhost:8000/v1/systemone \
+curl -s http://localhost:8010/v1/systemone \
   -H 'Content-Type: application/json' \
   -d '{
     "state": {"utterance": "turn on the kitchen lights"},
@@ -70,15 +70,15 @@ Returns Laya's raw answer — `choice`, `probabilities`, `answer_confidence`, an
 ```bash
 # Floor-plan UI (with Caddy proxy to a remote laya-serve)
 cd examples/home-automation
-LAYA_UPSTREAM=epyc02:8000 caddy run --config Caddyfile
+LAYA_UPSTREAM=epyc02:8010 caddy run --config Caddyfile
 # open http://localhost:8080
 
 # Benchmark
-python run_bench.py --router http://localhost:8000
+python run_bench.py --router http://localhost:8010
 
 # Triage
 cd ../triage
-python triage.py --server http://localhost:8000
+python triage.py --server http://localhost:8010
 
 # Direct in-process (no HTTP)
 cd ../python-direct
