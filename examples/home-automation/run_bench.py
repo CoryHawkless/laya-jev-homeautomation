@@ -59,6 +59,7 @@ def run_one(client: httpx.Client, url: str, utterance: str) -> dict:
     r = client.post(f"{url}/v1/systemone", json={"state": {"utterance": utterance}, "questions": HOME_QUESTIONS}, timeout=60)
     r.raise_for_status()
     result = r.json()
+    result["latency_ms"] = float(r.headers.get("X-Inference-Time-Ms", 0))
     result["client_latency_ms"] = round((time.perf_counter() - t0) * 1000.0, 2)
     return result
 
