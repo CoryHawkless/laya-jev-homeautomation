@@ -4,20 +4,20 @@
 # laya-serve instance at the same origin — no CORS needed in the browser.
 #
 # Usage from this directory:
-#   caddy run
+#   LAYA_UPSTREAM=epyc02:8010 caddy run --config Caddyfile
 # Then open http://localhost:8080 in your browser.
 #
 # Set the LAYA_UPSTREAM env var to point at your laya-serve instance:
-#   LAYA_UPSTREAM=192.168.50.179:8000 caddy run
+#   LAYA_UPSTREAM=192.168.50.179:8010 caddy run --config Caddyfile
 
-localhost:8080
+:8080
 
 handle /v1/systemone* {
-    reverse_proxy {$LAYA_UPSTREAM:localhost:8000}
+    reverse_proxy {$LAYA_UPSTREAM:localhost:8010}
 }
 
 handle /health {
-    reverse_proxy {$LAYA_UPSTREAM:localhost:8000}
+    reverse_proxy {$LAYA_UPSTREAM:localhost:8010}
 }
 
 handle {
