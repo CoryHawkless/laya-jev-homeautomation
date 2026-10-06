@@ -11,6 +11,7 @@ services:
     environment:
       LAYA_DEVICE: cpu
       LAYA_PRELOAD: "1"
+      LAYA_MODELS: "english"        # only preload the checkpoint we use; router still picks others on demand
       LAYA_LOG_LEVEL: info
       OMP_NUM_THREADS: "4"
     volumes:
@@ -20,8 +21,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
-      start_period: 120s
-    restart: unless-stopped
+      start_period: 180s
+    restart: always
 
   # GPU mode. Requires the NVIDIA Container Toolkit on the host.
   #   docker compose --profile gpu up -d laya-serve
@@ -35,6 +36,7 @@ services:
     environment:
       LAYA_DEVICE: cuda
       LAYA_PRELOAD: "1"
+      LAYA_MODELS: "english"        # only preload the checkpoint we use; router still picks others on demand
       LAYA_LOG_LEVEL: info
       OMP_NUM_THREADS: "4"
     volumes:
@@ -51,8 +53,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
-      start_period: 120s
-    restart: unless-stopped
+      start_period: 180s
+    restart: always
 
 volumes:
   hf-cache: {}
